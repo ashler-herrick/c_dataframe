@@ -1,5 +1,3 @@
-// File: src/dataframe.c
-
 #include "dataframe.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,8 +30,8 @@ DataFrame *create_dataframe(size_t num_rows, size_t num_columns) {
     return df;
 }
 
-// Function to add a column to the dataframe
-int add_column(DataFrame *df, size_t column_index, const char *name, DataType type) {
+// Validations performed when adding a column not relating to type
+int _validate_add_column(DataFrame *df, size_t column_index, const char *name){
     if (df == NULL || name == NULL) {
         fprintf(stderr, "DataFrame or name is NULL\n");
         return -1;
@@ -45,13 +43,31 @@ int add_column(DataFrame *df, size_t column_index, const char *name, DataType ty
         return -1;
     }
 
-    Column *col = &df->columns[column_index];
-
     // Ensure name is not empty
     if (strlen(name) == 0){
         fprintf(stderr, "Column name cannot be empty\n");
         return -1;
     }
+
+    // Ensure name is not above the limit
+    if (strlen(name) > MAX_COLUMN_NAME_LENGTH-1){
+        fprintf(stderr, "Column name cannot be greater than %d\n", MAX_COLUMN_NAME_LENGTH);
+        return -1;
+    }
+    
+    return 0;
+}
+
+
+// Function to add a column to the dataframe
+int add_column(DataFrame *df, DataType type, size_t column_index, const char *name) {
+    int validation;
+    validation = _validate_add_column(df, column_index, name);
+    if (validation != 0){
+        return -1;
+    }
+
+    Column *col = &df->columns[column_index];
 
     strncpy(col->name, name, MAX_COLUMN_NAME_LENGTH - 1);
     col->name[MAX_COLUMN_NAME_LENGTH - 1] = '\0'; // Ensure null termination

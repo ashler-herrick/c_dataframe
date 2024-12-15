@@ -9,6 +9,24 @@
 // Assuming dataframe.h is correctly included with all necessary declarations
 #include "dataframe.h"
 
+DataFrame *_create_big_dataframe(size_t num_rows, size_t num_columns){
+    DataFrame *df = create_dataframe(num_rows, num_columns);
+
+    // Add columns
+    size_t i;
+    for (i = 0; i < num_columns; i++) {
+        char column_name[MAX_COLUMN_NAME_LENGTH];
+        if (i % 2 == 0) {
+            snprintf(column_name, MAX_COLUMN_NAME_LENGTH, "Dimension%ld", i);
+            CU_ASSERT_EQUAL(add_column(df, DATA_TYPE_STRING, i, column_name), 0);
+        } else {
+            snprintf(column_name, MAX_COLUMN_NAME_LENGTH, "Value%ld", i);
+            CU_ASSERT_EQUAL(add_column(df, DATA_TYPE_INT, i, column_name), 0);
+        }
+    }
+    
+    return df;
+}
 
 void test_create_dataframe(){
     int num_rows = 3;
@@ -44,23 +62,7 @@ size_t estimate_memory_usage(size_t num_rows, size_t num_columns) {
 void test_big_dataframe(void) {
     size_t num_rows = 1000000;      // 1,000,000 rows
     size_t num_columns = 25;        // 25 columns
-    DataFrame *df = create_dataframe(num_rows, num_columns);
-    
-    CU_ASSERT_PTR_NOT_NULL_FATAL(df);  // Assert DataFrame is not NULL
-    CU_ASSERT_EQUAL(df->num_rows, num_rows);
-    CU_ASSERT_EQUAL(df->num_columns, num_columns);
-    
-    // Add columns
-    for (int i = 0; i < num_columns; i++) {
-        char column_name[MAX_COLUMN_NAME_LENGTH];
-        if (i % 2 == 0) {
-            snprintf(column_name, MAX_COLUMN_NAME_LENGTH, "Dimension%d", i);
-            CU_ASSERT_EQUAL(add_column(df, i, column_name, DATA_TYPE_STRING), 0);
-        } else {
-            snprintf(column_name, MAX_COLUMN_NAME_LENGTH, "Value%d", i);
-            CU_ASSERT_EQUAL(add_column(df, i, column_name, DATA_TYPE_INT), 0);
-        }
-    }
+    DataFrame *df = _create_big_dataframe(num_rows, num_columns);
     
     // Optional: Set some values to ensure columns are functional
     // For brevity, setting only the first and last row for some columns

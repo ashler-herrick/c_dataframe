@@ -1,5 +1,3 @@
-// File: include/dataframe.h
-
 #ifndef DATAFRAME_H
 #define DATAFRAME_H
 
@@ -15,23 +13,23 @@ typedef enum {
     DATA_TYPE_STRING = 2
 } DataType;
 
-// Union for column data
+// Holds the data for a column in the form of type-specific arrays.
 typedef union {
-    int *int_data;
+    int *int_data;          
     float *float_data;
     char **string_data;
 } ColumnData;
 
-// Structure for a single column
+// Represents a single column in a dataframe.
 typedef struct {
     char name[MAX_COLUMN_NAME_LENGTH]; // Column name
     DataType type;                     // Data type of the column
-    ColumnData data;                   // Union for data arrays
+    ColumnData data;                   // Union containing the actual data
 } Column;
 
-// Structure for the dataframe
+// Represents a collection of columns and their associated data, forming a 2D data structure (dataframe).
 typedef struct {
-    Column *columns;    // Array of columns
+    Column *columns;    // Pointer to an array of Column structs
     size_t num_columns; // Number of columns
     size_t num_rows;    // Number of rows
 } DataFrame;
@@ -56,7 +54,7 @@ DataFrame *create_dataframe(size_t num_rows, size_t num_columns);
  * @param type The data type of the column.
  * @return 0 on success, -1 on failure.
  */
-int add_column(DataFrame *df, size_t column_index, const char *name, DataType type);
+int add_column(DataFrame *df, DataType type, size_t column_index, const char *name);
 
 /**
  * Sets a value in the DataFrame at the specified row and column.

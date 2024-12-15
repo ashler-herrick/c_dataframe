@@ -1,32 +1,41 @@
+# Compiler and flags
 CC = gcc
 CFLAGS = -Wall -Wextra -Iinclude -g
 LDFLAGS = -lcunit
 
+# Directories
 SRCDIR = src
 TESTDIR = tests
 INCDIR = include
 
-SOURCES = $(SRCDIR)/dataframe.c
-OBJECTS = $(SOURCES:.c=.o)
+# Source files and object files
+LIB_SOURCES = $(SRCDIR)/dataframe.c $(SRCDIR)/dfio.c
+LIB_OBJECTS = $(LIB_SOURCES:.c=.o)
+LIB_TARGET = libdataframe.a
 
-TEST_SOURCES = $(TESTDIR)/test_dataframe.c
+TEST_SOURCES = $(TESTDIR)/test_dataframe.c $(TESTDIR)/test_dfio.c
 TEST_OBJECTS = $(TEST_SOURCES:.c=.o)
+TEST_TARGETS = test_dataframe test_dfio
 
-TARGET = dataframe
-TEST_TARGET = run_tests
+all: $(TEST_TARGETS)
 
-.PHONY: all clean test
+$(LIB_TARGET): $(LIB_OBJECTS)
+	# Tab used below
+	ar rcs $@ $^
 
-all: $(TARGET)
-
-$(TARGET): $(OBJECTS)
+test_dataframe: $(TESTDIR)/test_dataframe.o $(LIB_TARGET)
+	# Tab used below
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-$(TEST_TARGET): $(TEST_OBJECTS) $(OBJECTS)
+test_dfio: $(TESTDIR)/test_dfio.o $(LIB_TARGET)
+	# Tab used below
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-test: $(TEST_TARGET)
-	./$(TEST_TARGET)
+test: $(TEST_TARGETS)
+	# Tab used below
+	./test_dataframe
+	./test_dfio
 
 clean:
-	rm -f $(SRCDIR)/*.o $(TESTDIR)/*.o $(TARGET) $(TEST_TARGET)
+	# Tab used below
+	rm -f $(SRCDIR)/*.o $(TESTDIR)/*.o $(LIB_TARGET) $(TEST_TARGETS)
